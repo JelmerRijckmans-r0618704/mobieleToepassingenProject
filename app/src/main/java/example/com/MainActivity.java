@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private String mAnswer;
     private int mScore = 0;
     private int mQuestionNumber = 0;
+    private int mQuestions = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonChoice1 = (Button) findViewById(R.id.choice1);
         mButtonChoice2 = (Button) findViewById(R.id.choice2);
         mButtonChoice3 = (Button) findViewById(R.id.choice3);
+        mQuestions = mQuestionLibrary.getNumberOfQuestions();
 
         updateQuestion();
             //Start of Button Listener for Button1
@@ -93,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void updateQuestion(){
 
-        if(mQuestionNumber >= 4){
+        if(mQuestionNumber >= mQuestions){
             //At the end of the quiz, shows a new screen with highscores
             Intent intent  = new Intent(MainActivity.this, HighScoreActivity.class);
             intent.putExtra("score", mScore);

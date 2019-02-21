@@ -26,6 +26,9 @@ public class QuestionLibrary {
         String choice0 = mChoices[a][0];
         return choice0;
     }
+    public int getNumberOfQuestions(){
+        return mCorrectAnswers.length;
+    }
 
     public String getChoice2 (int a){
         String choice1 = mChoices[a][1];
