@@ -1,10 +1,15 @@
 package example.com;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mButtonChoice1;
     private Button mButtonChoice2;
     private Button mButtonChoice3;
+    private Button mQuit;
 
     private String mAnswer;
     private int mScore = 0;
@@ -27,12 +33,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        onBackPressed();
         mScoreView = (TextView) findViewById(R.id.score);
         mQuestionView = (TextView) findViewById(R.id.question);
         mButtonChoice1 = (Button) findViewById(R.id.choice1);
         mButtonChoice2 = (Button) findViewById(R.id.choice2);
         mButtonChoice3 = (Button) findViewById(R.id.choice3);
+        mQuit = (Button)findViewById(R.id.quit);
         mQuestions = mQuestionLibrary.getNumberOfQuestions();
 
         updateQuestion();
@@ -92,6 +99,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             //End of Button Listener for Button3
+
+            //Start of Button Listener for quit
+        mQuit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //My logic for button quit goes here
+                askForUserInput();
+            }
+        });
+        //End of Button Listener for quit
     }
     private void updateQuestion(){
 
@@ -110,6 +127,38 @@ public class MainActivity extends AppCompatActivity {
             mAnswer = mQuestionLibrary.getCorrectAnswer(mQuestionNumber);
             mQuestionNumber++;
         }
+    }
+
+    @Override
+    //back button on app leads user to home
+    public void onBackPressed() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    //Dialog asks user to quit
+    private void askForUserInput(){
+        AlertDialog.Builder builder =   new AlertDialog.Builder(this);
+        builder.setTitle("Are you sure you want to exit?");
+
+        //sets the yes and no button
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+               //Exits the app
+                finish();
+                System.exit(0);
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //Does nothing
+            }
+        });
+        builder.show();
     }
 
     private void updateScore (int point){
