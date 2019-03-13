@@ -9,21 +9,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+
+        <activity android:name=".CategoryActivity"
+            android:label="CategoryActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="HighScoreActivity"
-            android:label="HighScoreActivity" >
-            <intent-filter>
-                <action android:name="example.com.HighScoreActivity"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
 
+        <activity android:name=".MainActivity"
+            android:label="MainActivity" >
         </activity>
+
+        <activity android:name=".HighScoreActivity"
+            android:label="HighScoreActivity" >
+        </activity>
+
     </application>
 
 </manifest>

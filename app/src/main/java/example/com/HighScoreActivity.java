@@ -22,7 +22,6 @@ import java.util.Map;
 
 public class HighScoreActivity extends AppCompatActivity {
 
-    private TextView mScoreView;
     private int score = 0;
     private TextView highscoreview_text;
     private ArrayList<Player> highScoreList = new ArrayList<>(5);
@@ -49,7 +48,6 @@ public class HighScoreActivity extends AppCompatActivity {
         //End of Button Listener for quit
 
         //askForUserInput();
-        System.out.println("The quiz has ended");
         setScore();
         checkIfUserGotHighScore();
     }
@@ -82,22 +80,17 @@ public class HighScoreActivity extends AppCompatActivity {
     private void swapCurrentPlayerIn(int indexPlayerToRemove, String nameCurrentPlayer) {
         this.highScoreList.remove(indexPlayerToRemove);
         this.highScoreList.add(new Player(nameCurrentPlayer, score));
-        System.out.println("Name of current player: " + nameCurrentPlayer);
-        System.out.println(this.highScoreList.toString());
         sortHighScores();
-        System.out.println(this.highScoreList.toString());
         printHighScores();
     }
 
     //puts some players in the highscore list and adds the current player
     private void setScore(){
-        mScoreView = (TextView) findViewById(R.id.score);
-        mScoreView.setText("" + score);
         highScoreList.add(new Player("Test1",1));
-        highScoreList.add(new Player("Test3", 3));
+        highScoreList.add(new Player("Test0", 0));
         highScoreList.add(new Player("Test2", 2));
-        highScoreList.add(new Player("Test5", 3));
-        highScoreList.add(new Player("Test4", 3));
+        highScoreList.add(new Player("Test3", 3));
+        highScoreList.add(new Player("Test5", 5));
     }
 
     private void checkIfUserGotHighScore() {
@@ -125,15 +118,15 @@ public class HighScoreActivity extends AppCompatActivity {
     //Dialog asks user to quit
     private void askForUserInputToQuit(){
         AlertDialog.Builder builder =   new AlertDialog.Builder(this);
-        builder.setTitle("Are you sure you want to exit?");
+        builder.setTitle("Are you sure you want to return to the menu?");
 
         //sets the yes and no button
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //Exits the app
-                finish();
-                System.exit(0);
+                //Return to menu
+                Intent intent  = new Intent(HighScoreActivity.this, CategoryActivity.class);
+                startActivity(intent);
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {

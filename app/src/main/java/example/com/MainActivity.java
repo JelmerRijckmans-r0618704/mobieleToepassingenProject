@@ -1,15 +1,12 @@
 package example.com;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private int mScore = 0;
     private int mQuestionNumber = 0;
     private int mQuestions = 0;
+    private String chosenCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +37,8 @@ public class MainActivity extends AppCompatActivity {
         mButtonChoice2 = (Button) findViewById(R.id.choice2);
         mButtonChoice3 = (Button) findViewById(R.id.choice3);
         mQuit = (Button)findViewById(R.id.quit);
-        mQuestions = mQuestionLibrary.getNumberOfQuestions();
+        chosenCategory = getIntent().getExtras().getString("chosenCategory");
+        mQuestions = mQuestionLibrary.getNumberOfQuestions(chosenCategory);
 
         updateQuestion();
             //Start of Button Listener for Button1
@@ -104,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //My logic for button quit goes here
-                askForUserInput();
+                askForUserToExitToMenu();
             }
         });
         //End of Button Listener for quit
@@ -118,12 +117,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
         else {
-            mQuestionView.setText(mQuestionLibrary.getQuestion(mQuestionNumber));
-            mButtonChoice1.setText(mQuestionLibrary.getChoice1(mQuestionNumber));
-            mButtonChoice2.setText(mQuestionLibrary.getChoice2(mQuestionNumber));
-            mButtonChoice3.setText(mQuestionLibrary.getChoice3(mQuestionNumber));
+            mQuestionView.setText(mQuestionLibrary.getQuestion(mQuestionNumber, chosenCategory));
+            mButtonChoice1.setText(mQuestionLibrary.getChoice1(mQuestionNumber, chosenCategory));
+            mButtonChoice2.setText(mQuestionLibrary.getChoice2(mQuestionNumber, chosenCategory));
+            mButtonChoice3.setText(mQuestionLibrary.getChoice3(mQuestionNumber, chosenCategory));
 
-            mAnswer = mQuestionLibrary.getCorrectAnswer(mQuestionNumber);
+            mAnswer = mQuestionLibrary.getCorrectAnswer(mQuestionNumber, chosenCategory);
             mQuestionNumber++;
         }
     }
@@ -138,17 +137,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Dialog asks user to quit
-    private void askForUserInput(){
+    private void askForUserToExitToMenu(){
         AlertDialog.Builder builder =   new AlertDialog.Builder(this);
-        builder.setTitle("Are you sure you want to exit?");
+        builder.setTitle("Are you sure you want to go back to the menu?");
 
         //sets the yes and no button
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                resetScore();
+                Intent intent  = new Intent(MainActivity.this, CategoryActivity.class);
+                startActivity(intent);
                //Exits the app
-                finish();
-                System.exit(0);
+
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -158,6 +159,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         builder.show();
+    }
+
+    private void resetScore() {
+        this.mScore = 0;
     }
 
     private void updateScore (int point){
