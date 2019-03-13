@@ -1,19 +1,16 @@
 package example.com;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class ChooseCategoryActivity extends AppCompatActivity {
 
     private QuestionLibrary mQuestionLibrary = new QuestionLibrary();
 
@@ -32,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chooseCategory);
         mScoreView = (TextView) findViewById(R.id.score);
         mQuestionView = (TextView) findViewById(R.id.question);
         mButtonChoice1 = (Button) findViewById(R.id.choice1);
@@ -52,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
                         updateScore(mScore);
                         updateQuestion();
 
-                        Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChooseCategoryActivity.this, "Correct", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChooseCategoryActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
                         updateQuestion();
                     }
                 }
@@ -71,9 +68,9 @@ public class MainActivity extends AppCompatActivity {
                         updateScore(mScore);
                         updateQuestion();
 
-                        Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChooseCategoryActivity.this, "Correct", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChooseCategoryActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
                         updateQuestion();
                     }
                 }
@@ -90,9 +87,9 @@ public class MainActivity extends AppCompatActivity {
                         updateScore(mScore);
                         updateQuestion();
 
-                        Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChooseCategoryActivity.this, "Correct", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChooseCategoryActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
                         updateQuestion();
                     }
                 }
@@ -113,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(mQuestionNumber >= mQuestions){
             //At the end of the quiz, shows a new screen with highscores
-            Intent intent  = new Intent(MainActivity.this, HighScoreActivity.class);
+            Intent intent  = new Intent(ChooseCategoryActivity.this, HighScoreActivity.class);
             intent.putExtra("score", mScore);
             startActivity(intent);
         }

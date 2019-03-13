@@ -10,7 +10,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +25,7 @@ public class HighScoreActivity extends AppCompatActivity {
     private TextView mScoreView;
     private int score = 0;
     private TextView highscoreview_text;
-    private HashMap<String, Integer> highScoreList = new HashMap<>();
+    private ArrayList<Player> highScoreList = new ArrayList<>();
     private String text = "";
     private String nameCurrentPlayer = "Current player";
     private Button mQuit;
@@ -31,7 +34,6 @@ public class HighScoreActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_highscore);
-        onBackPressed();
         highscoreview_text = (TextView) findViewById(R.id.highscoreview_text);
         score = getIntent().getExtras().getInt("score");
         mQuit = (Button)findViewById(R.id.quit);
@@ -78,27 +80,15 @@ public class HighScoreActivity extends AppCompatActivity {
     private void setScore(){
         mScoreView = (TextView) findViewById(R.id.score);
         mScoreView.setText("" + score);
-        highScoreList.put("Bert",1);
-        highScoreList.put("Anna", 2);
+        highScoreList.add(new Player("Bert",1));
+        highScoreList.add(new Player("Anna", 2));
         //set name of current player
-            highScoreList.put(nameCurrentPlayer, score);
+            highScoreList.add(new Player(nameCurrentPlayer, score));
     }
 
     //sorts highscore, highest first
     public void sortHighScores() {
-        Object[] a = this.highScoreList.entrySet().toArray();
-        Arrays.sort(a, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                return ((Map.Entry<String, Integer>) o2).getValue()
-                        .compareTo(((Map.Entry<String, Integer>) o1).getValue());
-            }
-        });
-        for (Object e : a) {
-           String key = ((Map.Entry<String, Integer>) e).getKey();
-           int value = ((Map.Entry<String, Integer>) e).getValue();
-          this.text += "\n"+(((Map.Entry<String, Integer>) e).getKey() + " : "
-                   + ((Map.Entry<String, Integer>) e).getValue()) +"\n";
-        }
+        Collections.sort(this.highScoreList);
     }
 
     //Dialog asks user to quit
@@ -127,6 +117,9 @@ public class HighScoreActivity extends AppCompatActivity {
     //prints out the name and score of the players
     public void printHighScores() {
        sortHighScores();
+       for(Player player : this.highScoreList){
+           this.text += "\n" + player.toString()+"\n";
+       }
         highscoreview_text.setText(text);
     }
     @Override
