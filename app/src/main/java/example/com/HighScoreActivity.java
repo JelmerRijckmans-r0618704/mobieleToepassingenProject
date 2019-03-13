@@ -25,7 +25,7 @@ public class HighScoreActivity extends AppCompatActivity {
     private TextView mScoreView;
     private int score = 0;
     private TextView highscoreview_text;
-    private ArrayList<Player> highScoreList = new ArrayList<>();
+    private ArrayList<Player> highScoreList = new ArrayList<>(5);
     private String text = "";
     private String nameCurrentPlayer = "Current player";
     private Button mQuit;
@@ -48,11 +48,15 @@ public class HighScoreActivity extends AppCompatActivity {
         });
         //End of Button Listener for quit
 
-        askForUserInput();
+        //askForUserInput();
+        System.out.println("The quiz has ended");
+        setScore();
+        checkIfUserGotHighScore();
     }
 
     //Asks for name of user
-    private void askForUserInput(){
+    //Swaps user with player on highscore
+    private void askForUserInput(final int indexPlayerToRemove){
         AlertDialog.Builder builder =   new AlertDialog.Builder(this);
         builder.setTitle("You have made it to highscore! ");
 
@@ -69,21 +73,48 @@ public class HighScoreActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
 
                 nameCurrentPlayer = input.getText().toString();
-                setScore();
-                printHighScores();
+                swapCurrentPlayerIn(indexPlayerToRemove, nameCurrentPlayer);
             }
         });
         builder.show();
+    }
+
+    private void swapCurrentPlayerIn(int indexPlayerToRemove, String nameCurrentPlayer) {
+        this.highScoreList.remove(indexPlayerToRemove);
+        this.highScoreList.add(new Player(nameCurrentPlayer, score));
+        System.out.println("Name of current player: " + nameCurrentPlayer);
+        System.out.println(this.highScoreList.toString());
+        sortHighScores();
+        System.out.println(this.highScoreList.toString());
+        printHighScores();
     }
 
     //puts some players in the highscore list and adds the current player
     private void setScore(){
         mScoreView = (TextView) findViewById(R.id.score);
         mScoreView.setText("" + score);
-        highScoreList.add(new Player("Bert",1));
-        highScoreList.add(new Player("Anna", 2));
-        //set name of current player
-            highScoreList.add(new Player(nameCurrentPlayer, score));
+        highScoreList.add(new Player("Test1",1));
+        highScoreList.add(new Player("Test3", 3));
+        highScoreList.add(new Player("Test2", 2));
+        highScoreList.add(new Player("Test5", 3));
+        highScoreList.add(new Player("Test4", 3));
+    }
+
+    private void checkIfUserGotHighScore() {
+        boolean playerGotHighScore = false;
+        int indexPlayerToRemove = 0;
+        sortHighScores();
+        for( int i = 0; i != 5; i++){
+            if(this.highScoreList.get(i).getScore() < this.score)
+                playerGotHighScore = true;
+                indexPlayerToRemove = i;
+        }
+        if(playerGotHighScore){
+            askForUserInput(indexPlayerToRemove);
+             }
+             else {
+            printHighScores();
+        }
     }
 
     //sorts highscore, highest first
@@ -116,9 +147,9 @@ public class HighScoreActivity extends AppCompatActivity {
 
     //prints out the name and score of the players
     public void printHighScores() {
-       sortHighScores();
-       for(Player player : this.highScoreList){
-           this.text += "\n" + player.toString()+"\n";
+        sortHighScores();
+       for(int i = 0; i != 5; i++){
+           text +="\n" + this.highScoreList.get(i).toString()+"\n";
        }
         highscoreview_text.setText(text);
     }
