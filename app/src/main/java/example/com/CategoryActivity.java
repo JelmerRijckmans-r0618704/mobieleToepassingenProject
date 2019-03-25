@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 public class CategoryActivity extends AppCompatActivity {
 
-    private QuestionLibrary mQuestionLibrary = new QuestionLibrary();
+    private CategoryLibrary mCategoryLibrary = new CategoryLibrary();
 
     private TextView mCategoryView;
     private Button mButtonChoice1;
@@ -36,7 +36,7 @@ public class CategoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //My logic for button goes here
-                startIntent(Category.Flowers.toString());
+                startIntent(CategoryEnum.Flowers.toString());
             }
         });
         //End of Button Listener for Button1
@@ -46,7 +46,7 @@ public class CategoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //My logic for button goes here
-                startIntent(Category.Pokemon.toString());
+                startIntent(CategoryEnum.Pokemon.toString());
             }
         });
         //End of Button Listener for Button2
@@ -56,7 +56,7 @@ public class CategoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //My logic for button goes here
-                startIntent(Category.Yugioh.toString());
+                startIntent(CategoryEnum.Yugioh.toString());
             }
         });
         //End of Button Listener for Button3
@@ -81,9 +81,9 @@ public class CategoryActivity extends AppCompatActivity {
 
     private void updateCategories(){
             mCategoryView.setText("Choose a category: ");
-            mButtonChoice1.setText(Category.Flowers.toString());
-            mButtonChoice2.setText(Category.Pokemon.toString());
-            mButtonChoice3.setText(Category.Yugioh.toString());
+            mButtonChoice1.setText(CategoryEnum.Flowers.toString());
+            mButtonChoice2.setText(CategoryEnum.Pokemon.toString());
+            mButtonChoice3.setText(CategoryEnum.Yugioh.toString());
     }
 
     @Override

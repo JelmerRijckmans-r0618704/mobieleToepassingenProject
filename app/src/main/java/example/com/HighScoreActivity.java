@@ -77,6 +77,7 @@ public class HighScoreActivity extends AppCompatActivity {
         builder.show();
     }
 
+    //removes player from the highscorelist and adds the current player
     private void swapCurrentPlayerIn(int indexPlayerToRemove, String nameCurrentPlayer) {
         this.highScoreList.remove(indexPlayerToRemove);
         this.highScoreList.add(new Player(nameCurrentPlayer, score));
@@ -93,6 +94,13 @@ public class HighScoreActivity extends AppCompatActivity {
         highScoreList.add(new Player("Test5", 5));
     }
 
+    //checks the highscorelist if player has enough points to reach it then:
+    //asks for name of the user
+    //lowest player is removed from the highscorelist
+    //name is added to the highscorelist
+    //then the highscores are printed
+    //else:
+    //the highscores are printed
     private void checkIfUserGotHighScore() {
         boolean playerGotHighScore = false;
         int indexPlayerToRemove = 0;

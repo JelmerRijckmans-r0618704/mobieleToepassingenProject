@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private QuestionLibrary mQuestionLibrary = new QuestionLibrary();
+    private CategoryLibrary mCategoryLibrary = new CategoryLibrary();
 
     private TextView mScoreView;
     private TextView mQuestionView;
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonChoice3 = (Button) findViewById(R.id.choice3);
         mQuit = (Button)findViewById(R.id.quit);
         chosenCategory = getIntent().getExtras().getString("chosenCategory");
-        mQuestions = mQuestionLibrary.getNumberOfQuestions(chosenCategory);
+        mQuestions = mCategoryLibrary.getNumberOfQuestionsOfCategory(chosenCategory);
 
         updateQuestion();
             //Start of Button Listener for Button1
@@ -117,12 +117,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
         else {
-            mQuestionView.setText(mQuestionLibrary.getQuestion(mQuestionNumber, chosenCategory));
-            mButtonChoice1.setText(mQuestionLibrary.getChoice1(mQuestionNumber, chosenCategory));
-            mButtonChoice2.setText(mQuestionLibrary.getChoice2(mQuestionNumber, chosenCategory));
-            mButtonChoice3.setText(mQuestionLibrary.getChoice3(mQuestionNumber, chosenCategory));
+            mQuestionView.setText(mCategoryLibrary.getQuestionOfCategoryWithIndex(mQuestionNumber, chosenCategory));
+            mButtonChoice1.setText(mCategoryLibrary.getChoice1OfCategoryWithIndex(mQuestionNumber, chosenCategory));
+            mButtonChoice2.setText(mCategoryLibrary.getChoice2OfCategoryWithIndex(mQuestionNumber, chosenCategory));
+            mButtonChoice3.setText(mCategoryLibrary.getChoice3OfCategoryWithIndex(mQuestionNumber, chosenCategory));
 
-            mAnswer = mQuestionLibrary.getCorrectAnswer(mQuestionNumber, chosenCategory);
+            mAnswer = mCategoryLibrary.getCorrectAnswerOfCategoryWithIndex(mQuestionNumber, chosenCategory);
             mQuestionNumber++;
         }
     }
