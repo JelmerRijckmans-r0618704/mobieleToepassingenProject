@@ -1,4 +1,4 @@
-package example.com;
+package example.com.domain;
 
 public class Player implements  Comparable<Player> {
 
@@ -7,7 +7,7 @@ public class Player implements  Comparable<Player> {
 
     public Player(String name, int score) {
        setScore(score);
-        setName(name);
+       setName(name);
     }
 
     public String getName() {

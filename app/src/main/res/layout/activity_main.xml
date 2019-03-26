@@ -39,50 +39,16 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:text="Which thing is alive?"
+        android:text="Question"
         android:textSize="20sp"
         android:padding="8dp"
         android:layout_marginBottom="40dp"
         android:id="@+id/question"/>
 
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="bird"
-        android:background="#0091EA"
-        android:textColor="#fff"
-        android:padding="8dp"
-        android:layout_marginBottom="24dp"
-        android:id="@+id/choice1"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="door"
-        android:background="#0091EA"
-        android:textColor="#fff"
-        android:padding="8dp"
-        android:layout_marginBottom="24dp"
-        android:id="@+id/choice2"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="rock"
-        android:background="#0091EA"
-        android:textColor="#fff"
-        android:padding="8dp"
-        android:layout_marginBottom="24dp"
-        android:id="@+id/choice3"/>
-
-    <Button
-        android:id="@+id/quit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:background="#B71C1C"
-        android:padding="8dp"
-        android:text="Back to menu"
-        android:textColor="#fff" />
+        android:layout_height="match_parent"
+        android:id="@+id/questionChoices"
+        android:orientation="vertical"></LinearLayout>
 
 </LinearLayout>

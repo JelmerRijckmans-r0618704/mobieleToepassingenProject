@@ -2,128 +2,128 @@ package example.com;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import example.com.domain.Category;
+import example.com.domain.Question;
+import example.com.domain.Service;
 
-    private CategoryLibrary mCategoryLibrary = new CategoryLibrary();
+public class MainActivity extends AppCompatActivity
+{
+    private Service service = new Service();
+    private int amountQuestion = 0;
+    private int currentQuestionIndex = 0;
+    private String questionAnswer;
+    private Question actualQuestion;
+    private Category currentCategory;
 
     private TextView mScoreView;
     private TextView mQuestionView;
-    private Button mButtonChoice1;
-    private Button mButtonChoice2;
-    private Button mButtonChoice3;
-    private Button mQuit;
 
-    private String mAnswer;
     private int mScore = 0;
-    private int mQuestionNumber = 0;
-    private int mQuestions = 0;
     private String chosenCategory;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mScoreView = (TextView) findViewById(R.id.score);
         mQuestionView = (TextView) findViewById(R.id.question);
-        mButtonChoice1 = (Button) findViewById(R.id.choice1);
-        mButtonChoice2 = (Button) findViewById(R.id.choice2);
-        mButtonChoice3 = (Button) findViewById(R.id.choice3);
-        mQuit = (Button)findViewById(R.id.quit);
+
         chosenCategory = getIntent().getExtras().getString("chosenCategory");
-        mQuestions = mCategoryLibrary.getNumberOfQuestionsOfCategory(chosenCategory);
+        currentCategory = service.getCategory(chosenCategory);
+        amountQuestion = currentCategory.getQuestionArrayList().size();
 
         updateQuestion();
-            //Start of Button Listener for Button1
-            mButtonChoice1.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //My logic for button goes here
-                    if (mButtonChoice1.getText() == mAnswer) {
-                        mScore = mScore + 1;
-                        updateScore(mScore);
-                        updateQuestion();
-
-                        Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
-                        updateQuestion();
-                    }
-                }
-            });
-            //End of Button Listener for Button1
-
-            //Start of Button Listener for Button2
-            mButtonChoice2.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //My logic for button goes here
-                    if (mButtonChoice2.getText() == mAnswer) {
-                        mScore = mScore + 1;
-                        updateScore(mScore);
-                        updateQuestion();
-
-                        Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
-                        updateQuestion();
-                    }
-                }
-            });
-            //End of Button Listener for Button2
-
-            //Start of Button Listener for Button3
-            mButtonChoice3.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //My logic for button goes here
-                    if (mButtonChoice3.getText() == mAnswer) {
-                        mScore = mScore + 1;
-                        updateScore(mScore);
-                        updateQuestion();
-
-                        Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
-                        updateQuestion();
-                    }
-                }
-            });
-            //End of Button Listener for Button3
-
-            //Start of Button Listener for quit
-        mQuit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //My logic for button quit goes here
-                askForUserToExitToMenu();
-            }
-        });
-        //End of Button Listener for quit
     }
-    private void updateQuestion(){
+    private void updateQuestion()
+    {
 
-        if(mQuestionNumber >= mQuestions){
+        if(currentQuestionIndex >= amountQuestion){
             //At the end of the quiz, shows a new screen with highscores
             Intent intent  = new Intent(MainActivity.this, HighScoreActivity.class);
             intent.putExtra("score", mScore);
             startActivity(intent);
         }
-        else {
-            mQuestionView.setText(mCategoryLibrary.getQuestionOfCategoryWithIndex(mQuestionNumber, chosenCategory));
-            mButtonChoice1.setText(mCategoryLibrary.getChoice1OfCategoryWithIndex(mQuestionNumber, chosenCategory));
-            mButtonChoice2.setText(mCategoryLibrary.getChoice2OfCategoryWithIndex(mQuestionNumber, chosenCategory));
-            mButtonChoice3.setText(mCategoryLibrary.getChoice3OfCategoryWithIndex(mQuestionNumber, chosenCategory));
+        else
+        {
+            actualQuestion = currentCategory.getQuestionArrayList().get(currentQuestionIndex);
+            questionAnswer = actualQuestion.getAnswer();
+            for (final String choice:  actualQuestion.getChoicesInList())
+            {
+                //the layout on which you are working
+                final LinearLayout layout = findViewById(R.id.questionChoices);
 
-            mAnswer = mCategoryLibrary.getCorrectAnswerOfCategoryWithIndex(mQuestionNumber, chosenCategory);
-            mQuestionNumber++;
+                //set the properties for button
+                Button btnTag = new Button(this);
+                btnTag.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                btnTag.setText(choice);
+                btnTag.setId(View.NO_ID);
+                btnTag.setBackgroundColor(Color.rgb(0,145,234));
+                btnTag.setTextColor(Color.WHITE);
+                btnTag.setPadding(8,8,8,8);
+                btnTag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+
+                //set the onclicklistener
+                btnTag.setOnClickListener(new View.OnClickListener() {
+                    @Override
+
+                    public void onClick(View view)
+                    {
+                        layout.removeAllViews();
+                        if(choice.equals(questionAnswer))
+                        {
+                            mScore += 1;
+                            updateScore(mScore);
+                            updateQuestion();
+
+                            Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
+                        }
+                        else
+                        {
+                            Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
+                            updateQuestion();
+                        }
+                    }
+                });
+
+                //add button to the layout
+                layout.addView(btnTag);
+                layout.addView(new TextView(this)); // no way to change margin so I use this lol
+            }
+
+            mQuestionView.setText(currentQuestionIndex+1 + " . " + actualQuestion.getQuestion());
+
+            currentQuestionIndex++;
+
+            LinearLayout layout = findViewById(R.id.questionChoices);
+            Button quitBtn = new Button(this);
+            quitBtn.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            quitBtn.setText("Back to Main Menu");
+            quitBtn.setId(View.NO_ID);
+            quitBtn.setBackgroundColor(Color.rgb(183,28,28));
+            quitBtn.setTextColor(Color.WHITE);
+            quitBtn.setPadding(8,8,8,8);
+            quitBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            layout.addView(quitBtn);
+            quitBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //My logic for button quit goes here
+                    askForUserToExitToMenu();
+                }
+            });
         }
     }
 

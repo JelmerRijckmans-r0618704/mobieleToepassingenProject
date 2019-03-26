@@ -1,75 +1,29 @@
 package example.com;
 
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AlertDialog;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import example.com.domain.Service;
 
 public class CategoryActivity extends AppCompatActivity {
 
-    private CategoryLibrary mCategoryLibrary = new CategoryLibrary();
+    private Service service = new Service();
 
-    private TextView mCategoryView;
-    private Button mButtonChoice1;
-    private Button mButtonChoice2;
-    private Button mButtonChoice3;
-    private Button mExit;
     private String chosenCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
-        mCategoryView = (TextView) findViewById(R.id.category);
-        mButtonChoice1 = (Button) findViewById(R.id.choice1);
-        mButtonChoice2 = (Button) findViewById(R.id.choice2);
-        mButtonChoice3 = (Button) findViewById(R.id.choice3);
-        mExit = (Button)findViewById(R.id.exit);
-
         updateCategories();
-        //Start of Button Listener for Button1
-        mButtonChoice1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //My logic for button goes here
-                startIntent(CategoryEnum.Flowers.toString());
-            }
-        });
-        //End of Button Listener for Button1
-
-        //Start of Button Listener for Button2
-        mButtonChoice2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //My logic for button goes here
-                startIntent(CategoryEnum.Pokemon.toString());
-            }
-        });
-        //End of Button Listener for Button2
-
-        //Start of Button Listener for Button3
-        mButtonChoice3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //My logic for button goes here
-                startIntent(CategoryEnum.Yugioh.toString());
-            }
-        });
-        //End of Button Listener for Button3
-
-        //Start of Button Listener for quit
-        mExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //My logic for button quit goes here
-                askForUserToExit();
-            }
-        });
-        //End of Button Listener for quit
     }
 
     private void startIntent(String chosenCategory) {
@@ -79,43 +33,37 @@ public class CategoryActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void updateCategories(){
-            mCategoryView.setText("Choose a category: ");
-            mButtonChoice1.setText(CategoryEnum.Flowers.toString());
-            mButtonChoice2.setText(CategoryEnum.Pokemon.toString());
-            mButtonChoice3.setText(CategoryEnum.Yugioh.toString());
-    }
+    private void updateCategories()
+    {
+        for (final String categoryName: service.getAllCategoryNames())
+        {
+            //the layout on which you are working
+            LinearLayout layout = findViewById(R.id.categoryList);
 
-    @Override
-    //back button on app leads user to home
-    public void onBackPressed() {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
+            //set the properties for button
+            Button btnTag = new Button(this);
+            btnTag.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+            btnTag.setText(categoryName);
+            btnTag.setId(View.NO_ID);
+            btnTag.setBackgroundColor(Color.rgb(0,145,234));
+            btnTag.setTextColor(Color.WHITE);
+            btnTag.setPadding(8,8,8,8);
+            btnTag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 
-    //Dialog asks user to quit
-    private void askForUserToExit(){
-        AlertDialog.Builder builder =   new AlertDialog.Builder(this);
-        builder.setTitle("Are you sure you want to exit the quiz?");
+            //set the onclicklistener
+            btnTag.setOnClickListener(new View.OnClickListener() {
+                @Override
 
-        //sets the yes and no button
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //Exits the app
-                finish();
-                moveTaskToBack(true);
-            }
-        });
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //Does nothing
-            }
-        });
-        builder.show();
+                public void onClick(View view) {
+                    //My logic for button goes here
+                    startIntent(categoryName);
+                }
+            });
+
+            //add button to the layout
+            layout.addView(btnTag);
+            layout.addView(new TextView(this)); // no way to change margin so I use this lol
+        }
     }
 }
 
