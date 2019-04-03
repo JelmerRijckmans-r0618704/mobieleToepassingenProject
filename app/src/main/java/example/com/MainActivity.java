@@ -10,6 +10,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,14 +47,13 @@ public class MainActivity extends AppCompatActivity
 
         chosenCategory = getIntent().getExtras().getString("chosenCategory");
         currentCategory = service.getCategory(chosenCategory);
-        amountQuestion = currentCategory.getMultipleChoiceArrayList().size();
+        amountQuestion = currentCategory.getQuestionArrayList().size();
 
         updateQuestion();
     }
 
     private void updateQuestion()
     {
-
         if(currentQuestionIndex >= amountQuestion){
             //At the end of the quiz, shows a new screen with highscores
             Intent intent  = new Intent(MainActivity.this, HighScoreActivity.class);
@@ -62,54 +62,24 @@ public class MainActivity extends AppCompatActivity
         }
         else
         {
-            actualMultipleChoice = currentCategory.getMultipleChoiceArrayList().get(currentQuestionIndex);
-            String title = "MultipleChoice number " + (currentQuestionIndex+1);
+            actualQuestion = currentCategory.getQuestionArrayList().get(currentQuestionIndex);
+            String title = "Question number " + (currentQuestionIndex+1);
             getSupportActionBar().setTitle(title);
-            questionAnswer = actualMultipleChoice.getAnswer();
-            for (final String choice:  actualMultipleChoice.getChoicesInList())
+
+            questionAnswer = actualQuestion.getAnswer();
+
+            switch(actualQuestion.getType())
             {
-                //the layout on which you are working
-                final LinearLayout layout = findViewById(R.id.questionChoices);
+                case MULTIPLE_CHOICE:
+                    createMultipleChoice();
+                    break;
+                case TEXT_INPUT:
+                    createTextInput();
+                    break;
 
-                //set the properties for button
-                Button btnTag = new Button(this);
-                btnTag.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                btnTag.setText(choice);
-                btnTag.setId(View.NO_ID);
-                btnTag.setBackgroundColor(Color.rgb(0,145,234));
-                btnTag.setTextColor(Color.WHITE);
-                btnTag.setPadding(8,8,8,8);
-                btnTag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-
-                //set the onclicklistener
-                btnTag.setOnClickListener(new View.OnClickListener() {
-                    @Override
-
-                    public void onClick(View view)
-                    {
-                        layout.removeAllViews();
-                        if(choice.equals(questionAnswer))
-                        {
-                            mScore += 1;
-                            updateScore(mScore);
-                            updateQuestion();
-
-                            Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
-                            Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
-                            updateQuestion();
-                        }
-                    }
-                });
-
-                //add button to the layout
-                layout.addView(btnTag);
-                layout.addView(new TextView(this)); // no way to change margin so I use this lol
             }
 
-            mQuestionView.setText(actualMultipleChoice.getQuestion());
+            mQuestionView.setText(actualQuestion.getQuestion());
 
             currentQuestionIndex++;
 
@@ -132,6 +102,101 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
+    }
+
+
+    private void createMultipleChoice()
+    {
+        for (final String choice:  ((MultipleChoice) actualQuestion).getChoicesInList())
+        {
+            //the layout on which you are working
+            final LinearLayout layout = findViewById(R.id.questionChoices);
+
+            //set the properties for button
+            Button btnTag = new Button(this);
+            btnTag.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            btnTag.setText(choice);
+            btnTag.setId(View.NO_ID);
+            btnTag.setBackgroundColor(Color.rgb(0,145,234));
+            btnTag.setTextColor(Color.WHITE);
+            btnTag.setPadding(8,8,8,8);
+            btnTag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+
+            //set the onclicklistener
+            btnTag.setOnClickListener(new View.OnClickListener() {
+                @Override
+
+                public void onClick(View view)
+                {
+                    layout.removeAllViews();
+                    if(choice.equals(questionAnswer))
+                    {
+                        mScore += 1;
+                        updateScore(mScore);
+                        updateQuestion();
+
+                        Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
+                        updateQuestion();
+                    }
+                }
+            });
+
+            //add button to the layout
+            layout.addView(btnTag);
+            layout.addView(new TextView(this)); // no way to change margin so I use this lol
+        }
+    }
+
+    private void createTextInput()
+    {
+        //the layout on which you are working
+        final LinearLayout layout = findViewById(R.id.questionChoices);
+
+        final EditText inputUser = new EditText(this);
+        inputUser.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+
+        Button btnTag = new Button(this);
+        btnTag.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        btnTag.setText("Confirm answer");
+        btnTag.setId(View.NO_ID);
+        btnTag.setBackgroundColor(Color.rgb(0,145,234));
+        btnTag.setTextColor(Color.WHITE);
+        btnTag.setPadding(8,8,8,8);
+        btnTag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+
+        //set the onclicklistener
+        btnTag.setOnClickListener(new View.OnClickListener() {
+            @Override
+
+            public void onClick(View view)
+            {
+                layout.removeAllViews();
+                if(inputUser.getText().toString().toLowerCase().equals(actualQuestion.getAnswer().toLowerCase()))
+                {
+                    mScore += 1;
+                    updateScore(mScore);
+                    updateQuestion();
+
+                    Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
+                    updateQuestion();
+                }
+            }
+        });
+
+        //add button to the layout
+        layout.addView(inputUser);
+        layout.addView(new TextView(this));
+        layout.addView(btnTag);
+        layout.addView(new TextView(this));
     }
 
     @Override

@@ -15,6 +15,7 @@ public class Service {
         Category newCat = createCategory("Flowers", "Easy");
         newCat.addQuestion(createMultipleChoice("Which part of the plant holds it in the soil?","Roots", "Stem", "Flower"));
         newCat.addQuestion(createMultipleChoice("This part of the plant absorbs energy from the sun.","Leaves", "Fruit", "Seeds"));
+        newCat.addQuestion(createTextInput("This part of the plant absorbs energy from the sun.", "Leaves"));
         categoryDatabase.add(newCat);
         Category newCat2 = createCategory("Pokemon", "Medium");
         newCat2.addQuestion(createMultipleChoice( "What is the evolution of Charmamander?","Charizard", "Vulpix", "Wartortle"));
@@ -67,6 +68,11 @@ public class Service {
     public MultipleChoice createMultipleChoice(String question, String choice1, String choice2, String choice3)
     {
         return new MultipleChoice(question, choice1, choice2, choice3);
+    }
+
+    public TextInput createTextInput(String question, String answer)
+    {
+        return new TextInput(question, answer);
     }
 
 }
