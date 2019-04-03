@@ -16,11 +16,11 @@ import example.com.domain.Service;
 public class CategoryActivity extends AppCompatActivity {
 
     private Service service = new Service();
-
     private String chosenCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getSupportActionBar().setTitle("Categories");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
         updateCategories();

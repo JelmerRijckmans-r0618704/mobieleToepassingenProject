@@ -28,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
-                android:text="Welcome to the quiz"
+                android:text="Welcome to the quiz! Choose one of the categories below."
                 android:layout_alignParentLeft="true"
                 android:id="@+id/welcome_text" />
 

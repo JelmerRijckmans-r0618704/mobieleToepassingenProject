@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import example.com.domain.Category;
+import example.com.domain.MultipleChoice;
 import example.com.domain.Question;
 import example.com.domain.Service;
 
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity
     private int amountQuestion = 0;
     private int currentQuestionIndex = 0;
     private String questionAnswer;
+    private MultipleChoice actualMultipleChoice;
     private Question actualQuestion;
     private Category currentCategory;
 
@@ -38,15 +40,17 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mScoreView = (TextView) findViewById(R.id.score);
-        mQuestionView = (TextView) findViewById(R.id.question);
+
+        mScoreView = findViewById(R.id.score);
+        mQuestionView = findViewById(R.id.question);
 
         chosenCategory = getIntent().getExtras().getString("chosenCategory");
         currentCategory = service.getCategory(chosenCategory);
-        amountQuestion = currentCategory.getQuestionArrayList().size();
+        amountQuestion = currentCategory.getMultipleChoiceArrayList().size();
 
         updateQuestion();
     }
+
     private void updateQuestion()
     {
 
@@ -58,9 +62,11 @@ public class MainActivity extends AppCompatActivity
         }
         else
         {
-            actualQuestion = currentCategory.getQuestionArrayList().get(currentQuestionIndex);
-            questionAnswer = actualQuestion.getAnswer();
-            for (final String choice:  actualQuestion.getChoicesInList())
+            actualMultipleChoice = currentCategory.getMultipleChoiceArrayList().get(currentQuestionIndex);
+            String title = "MultipleChoice number " + (currentQuestionIndex+1);
+            getSupportActionBar().setTitle(title);
+            questionAnswer = actualMultipleChoice.getAnswer();
+            for (final String choice:  actualMultipleChoice.getChoicesInList())
             {
                 //the layout on which you are working
                 final LinearLayout layout = findViewById(R.id.questionChoices);
@@ -103,10 +109,11 @@ public class MainActivity extends AppCompatActivity
                 layout.addView(new TextView(this)); // no way to change margin so I use this lol
             }
 
-            mQuestionView.setText(currentQuestionIndex+1 + " . " + actualQuestion.getQuestion());
+            mQuestionView.setText(actualMultipleChoice.getQuestion());
 
             currentQuestionIndex++;
 
+            //create quit button programmatically, there might be another better way
             LinearLayout layout = findViewById(R.id.questionChoices);
             Button quitBtn = new Button(this);
             quitBtn.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));

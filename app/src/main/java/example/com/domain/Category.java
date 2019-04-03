@@ -7,7 +7,7 @@ public class Category
 {
     private String name;
     private String difficulty;
-    private List<Question> questionArrayList = new ArrayList<>();
+    private List<MultipleChoice> multipleChoiceArrayList = new ArrayList<>();
 
     public Category(String naam, String difficulty)
     {
@@ -23,8 +23,8 @@ public class Category
         return difficulty;
     }
 
-    public List<Question> getQuestionArrayList() {
-        return questionArrayList;
+    public List<MultipleChoice> getMultipleChoiceArrayList() {
+        return multipleChoiceArrayList;
     }
 
     public void setName(String name) {
@@ -35,9 +35,9 @@ public class Category
         this.difficulty = difficulty;
     }
 
-    public void addQuestion(Question newQuestion)
+    public void addQuestion(MultipleChoice newMultipleChoice)
     {
-        questionArrayList.add(newQuestion);
+        multipleChoiceArrayList.add(newMultipleChoice);
     }
 
 }
