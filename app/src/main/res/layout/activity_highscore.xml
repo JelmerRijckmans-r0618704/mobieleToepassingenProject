@@ -18,7 +18,28 @@
         android:textSize="20sp"
         android:layout_alignParentLeft="true"
         android:text="highscore"
+        android:id="@+id/currentScore"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_alignParentLeft="true"
+        android:text="" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_alignParentLeft="true"
+        android:scrollbars="vertical"
+        android:text="Waiting for highscores"
         android:id="@+id/highscoreview_text" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_alignParentLeft="true"
+        android:text="" />
 
     <Button
         android:id="@+id/quit"

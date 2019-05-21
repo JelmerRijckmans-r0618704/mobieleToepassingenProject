@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,17 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import example.com.domain.Category;
 import example.com.domain.MultipleChoice;
@@ -32,9 +44,12 @@ public class MainActivity extends AppCompatActivity
 
     private TextView mScoreView;
     private TextView mQuestionView;
+    private RequestQueue mQueue;
+
 
     private int mScore = 0;
     private String chosenCategory;
+    private String playerName = "null";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -44,6 +59,7 @@ public class MainActivity extends AppCompatActivity
 
         mScoreView = findViewById(R.id.score);
         mQuestionView = findViewById(R.id.question);
+        mQueue = Volley.newRequestQueue(this);
 
         chosenCategory = getIntent().getExtras().getString("chosenCategory");
         currentCategory = service.getCategory(chosenCategory);
@@ -55,15 +71,46 @@ public class MainActivity extends AppCompatActivity
     private void updateQuestion()
     {
         if(currentQuestionIndex >= amountQuestion){
-            //At the end of the quiz, shows a new screen with highscores
-            Intent intent  = new Intent(MainActivity.this, HighScoreActivity.class);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Please put in your username");
+
+            // Set up the input
+            final EditText input = new EditText(this);
+            // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            builder.setView(input);
+            final Intent intent  = new Intent(MainActivity.this, HighScoreActivity.class);
+            intent.putExtra("category", currentCategory.getName());
             intent.putExtra("score", mScore);
-            startActivity(intent);
+            intent.putExtra("player", "anon");
+            // Set up the buttons
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    playerName = input.getText().toString();
+                    if(!(playerName.length() <= 0 || playerName.isEmpty()))
+                    {
+                        postRequest();
+                    }
+                    intent.putExtra("player", playerName);
+                    startActivity(intent);
+                }
+
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                    resetScore();
+                    startActivity(intent);
+                }
+            });
+            builder.show();
         }
         else
         {
             actualQuestion = currentCategory.getQuestionArrayList().get(currentQuestionIndex);
-            String title = "Question number " + (currentQuestionIndex+1);
+            String title = currentCategory.getName() + " : Question " + (currentQuestionIndex+1);
             getSupportActionBar().setTitle(title);
 
             questionAnswer = actualQuestion.getAnswer();
@@ -76,7 +123,6 @@ public class MainActivity extends AppCompatActivity
                 case TEXT_INPUT:
                     createTextInput();
                     break;
-
             }
 
             mQuestionView.setText(actualQuestion.getQuestion());
@@ -150,6 +196,41 @@ public class MainActivity extends AppCompatActivity
             layout.addView(new TextView(this)); // no way to change margin so I use this lol
         }
     }
+
+
+    private void postRequest() {
+        String url = "http://188.166.68.90:5000/api/v1/highscores";
+        JSONObject jsonBody = new JSONObject();
+        try
+        {
+            jsonBody.put("playername", playerName);
+            jsonBody.put("categoryPlayed", chosenCategory);
+            jsonBody.put("highscore", mScore);
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            System.out.println("request done");
+                            Toast.makeText(MainActivity.this, "Score sent", Toast.LENGTH_SHORT).show();
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error)
+                {
+                    Toast.makeText(MainActivity.this, "Score not sent", Toast.LENGTH_SHORT).show();
+                    error.printStackTrace();
+                }
+            });
+            mQueue.add(request);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
 
     private void createTextInput()
     {

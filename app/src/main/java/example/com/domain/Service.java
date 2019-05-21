@@ -11,7 +11,6 @@ public class Service {
 
     public Service() {
         this.categoryDatabase = new CategoryDbInMemory();
-
         Category newCat = createCategory("Flowers", "Easy");
         newCat.addQuestion(createMultipleChoice("Which part of the plant holds it in the soil?","Roots", "Stem", "Flower"));
         newCat.addQuestion(createMultipleChoice("This part of the plant absorbs energy from the sun.","Leaves", "Fruit", "Seeds"));

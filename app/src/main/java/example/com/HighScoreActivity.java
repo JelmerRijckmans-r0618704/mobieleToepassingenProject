@@ -6,34 +6,61 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
+import example.com.domain.Highscore;
 import example.com.domain.Player;
 
 
 public class HighScoreActivity extends AppCompatActivity {
 
     private int score = 0;
-    private TextView highscoreview_text;
-    private ArrayList<Player> highScoreList = new ArrayList<>(5);
-    private String text = "";
-    private String nameCurrentPlayer = "Current player";
+    private TextView highscoreview_text, currentScore;
+    private String category;
+    private String nameCurrentPlayer;
+    private String highscoresTextList = "";
+    private RequestQueue mQueue;
     private Button mQuit;
+    private ArrayList<Highscore> highscores = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setTitle("Highscores");
         setContentView(R.layout.activity_highscore);
         highscoreview_text = (TextView) findViewById(R.id.highscoreview_text);
-        score = getIntent().getExtras().getInt("score");
-        mQuit = (Button)findViewById(R.id.quit);
+        currentScore = (TextView) findViewById(R.id.currentScore);
+        highscoreview_text.setMovementMethod(new ScrollingMovementMethod());
 
+        score = getIntent().getExtras().getInt("score");
+        category = getIntent().getExtras().getString("category");
+        nameCurrentPlayer = getIntent().getExtras().getString("player");
+
+        if("anon".equals(nameCurrentPlayer)) currentScore.setText("Congrats anon! \n Your score is: " + score);
+        else currentScore.setText("Congrats " + nameCurrentPlayer + "! \nYour score is: " + score);
+        
+        mQuit = (Button)findViewById(R.id.quit);
+        mQueue = Volley.newRequestQueue(this);
+
+        jsonParse();
         //Start of Button Listener for quit
         mQuit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,83 +69,53 @@ public class HighScoreActivity extends AppCompatActivity {
                 askForUserInputToQuit();
             }
         });
-        //End of Button Listener for quit
-
-        //askForUserInput();
-        setScore();
-        checkIfUserGotHighScore();
     }
 
-    //Asks for name of user
-    //Swaps user with player on highscore
-    private void askForUserInput(final int indexPlayerToRemove){
-        AlertDialog.Builder builder =   new AlertDialog.Builder(this);
-        builder.setTitle("You have made it to highscore! ");
 
-        // Set the input
-        final EditText input = new EditText(this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
 
-        // Sets the ok button
-        // sets score & prints highscores
-        builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+    private void jsonParse()
+    {
+        String url = "http://188.166.68.90:5000/api/v1/highscores";
 
-                nameCurrentPlayer = input.getText().toString();
-                swapCurrentPlayerIn(indexPlayerToRemove, nameCurrentPlayer);
-            }
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray jsonArray = response.getJSONArray("highscores");
+                            for(int i = 0; i < jsonArray.length(); i++)
+                            {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                if(category.equals(jsonObject.getString("categoryPlayed")))
+                                {
+                                    highscores.add(new Highscore(jsonObject.getString("playername"), category, jsonObject.getInt("highscore")));
+                                }
+                            }
+                            Collections.sort(highscores);
+                            int listL = 1;
+                            for (Highscore highscore: highscores)
+                            {
+                                highscoresTextList += listL + ". " + highscore.toString() + "\n";
+                                listL++ ;
+                            }
+                            highscoreview_text.setText(highscoresTextList);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+             }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        highscoreview_text.setText("Could not retrieve highscores.");
+                        error.printStackTrace();
+                    }
         });
-        builder.show();
+
+        mQueue.add(request);
     }
 
-    //removes player from the highscorelist and adds the current player
-    private void swapCurrentPlayerIn(int indexPlayerToRemove, String nameCurrentPlayer) {
-        this.highScoreList.remove(indexPlayerToRemove);
-        this.highScoreList.add(new Player(nameCurrentPlayer, score));
-        sortHighScores();
-        printHighScores();
-    }
 
-    //puts some players in the highscore list and adds the current player
-    private void setScore(){
-        highScoreList.add(new Player("Test1",1));
-        highScoreList.add(new Player("Test0", 0));
-        highScoreList.add(new Player("Test2", 2));
-        highScoreList.add(new Player("Test3", 3));
-        highScoreList.add(new Player("Test5", 5));
-    }
-
-    //checks the highscorelist if player has enough points to reach it then:
-    //asks for name of the user
-    //lowest player is removed from the highscorelist
-    //name is added to the highscorelist
-    //then the highscores are printed
-    //else:
-    //the highscores are printed
-    private void checkIfUserGotHighScore() {
-        boolean playerGotHighScore = false;
-        int indexPlayerToRemove = 0;
-        sortHighScores();
-        for( int i = 0; i != 5; i++){
-            if(this.highScoreList.get(i).getScore() < this.score)
-                playerGotHighScore = true;
-                indexPlayerToRemove = i;
-        }
-        if(playerGotHighScore){
-            askForUserInput(indexPlayerToRemove);
-             }
-             else {
-            printHighScores();
-        }
-    }
-
-    //sorts highscore, highest first
-    public void sortHighScores() {
-        Collections.sort(this.highScoreList);
-    }
 
     //Dialog asks user to quit
     private void askForUserInputToQuit(){
@@ -143,14 +140,6 @@ public class HighScoreActivity extends AppCompatActivity {
         builder.show();
     }
 
-    //prints out the name and score of the players
-    public void printHighScores() {
-        sortHighScores();
-       for(int i = 0; i != 5; i++){
-           text +="\n" + this.highScoreList.get(i).toString()+"\n";
-       }
-        highscoreview_text.setText(text);
-    }
     @Override
     //Back button on app leads user to home
     public void onBackPressed() {
