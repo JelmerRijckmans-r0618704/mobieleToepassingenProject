@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,7 +60,6 @@ public class MainActivity extends AppCompatActivity
     private RequestQueue mQueue;
     private ImageView mImage;
 
-
     private int mScore = 0;
     private String chosenCategory;
     private String playerName = "null";
@@ -85,6 +85,9 @@ public class MainActivity extends AppCompatActivity
     {
         if(currentQuestionIndex >= amountQuestion)
         {
+            ScrollView layout = findViewById(R.id.MainActivity);
+            layout.removeAllViews();
+
             final Intent intent  = new Intent(MainActivity.this, HighScoreActivity.class);
             intent.putExtra("category", currentCategory.getName());
             intent.putExtra("score", mScore);
@@ -138,6 +141,8 @@ public class MainActivity extends AppCompatActivity
         }
         else
         {
+            LinearLayout layout = findViewById(R.id.questionChoices);
+
             actualQuestion = currentCategory.getQuestionArrayList().get(currentQuestionIndex);
             String title = currentCategory.getName() + " : Question " + (currentQuestionIndex+1);
             getSupportActionBar().setTitle(title);
@@ -157,24 +162,15 @@ public class MainActivity extends AppCompatActivity
             mQuestionView.setText(actualQuestion.getQuestion());
 
 
-            //create quit button programmatically, there might be another better way
-            LinearLayout layout = findViewById(R.id.questionChoices);
-            Button quitBtn = new Button(this);
-            quitBtn.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            quitBtn.setText("Back to Main Menu");
-            quitBtn.setId(View.NO_ID);
-            quitBtn.setBackgroundColor(Color.rgb(183,28,28));
-            quitBtn.setTextColor(Color.WHITE);
-            quitBtn.setPadding(8,8,8,8);
-            quitBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            layout.addView(quitBtn);
+            Button quitBtn = createBtn("Back to main menu", 183, 28,28);
             quitBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //My logic for button quit goes here
                     askForUserToExitToMenu();
                 }
             });
+            layout.addView(quitBtn);
+
         }
     }
 
@@ -185,15 +181,7 @@ public class MainActivity extends AppCompatActivity
         {
             final LinearLayout layout = findViewById(R.id.questionChoices);
 
-            Button btnTag = new Button(this);
-            btnTag.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            btnTag.setText(choice);
-            btnTag.setId(View.NO_ID);
-            btnTag.setBackgroundColor(Color.rgb(0,145,234));
-            btnTag.setTextColor(Color.WHITE);
-            btnTag.setPadding(8,8,8,8);
-            btnTag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-
+            Button btnTag = createBtn(choice, 0, 145, 234);
             btnTag.setOnClickListener(new View.OnClickListener() {
                 @Override
 
@@ -266,14 +254,7 @@ public class MainActivity extends AppCompatActivity
         inputUser.setFilters(new InputFilter[] {new InputFilter.LengthFilter(15)});
         inputUser.setSingleLine(true);
 
-        Button btnTag = new Button(this);
-        btnTag.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        btnTag.setText("Confirm answer");
-        btnTag.setId(View.NO_ID);
-        btnTag.setBackgroundColor(Color.rgb(0,145,234));
-        btnTag.setTextColor(Color.WHITE);
-        btnTag.setPadding(8,8,8,8);
-        btnTag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        Button btnTag = createBtn("Confirm answer", 0, 145, 234);
 
         btnTag.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -338,7 +319,7 @@ public class MainActivity extends AppCompatActivity
         if(!(actualQuestion.getResource() == null))
         {
             final ImageView src = new ImageView(this);
-            Picasso.with(view.getContext())
+            Picasso.with(src.getContext())
                     .load(actualQuestion.getResource())
                     .into(src, new com.squareup.picasso.Callback() {
                         @Override
@@ -368,6 +349,19 @@ public class MainActivity extends AppCompatActivity
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private Button createBtn(String msg, int r, int g, int b)
+    {
+        Button newBtn = new Button(this);
+        newBtn.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        newBtn.setText(msg);
+        newBtn.setId(View.NO_ID);
+        newBtn.setBackgroundColor(Color.rgb(r,g,b));
+        newBtn.setTextColor(Color.WHITE);
+        newBtn.setPadding(8,8,8,8);
+        newBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        return newBtn;
     }
 
 }
