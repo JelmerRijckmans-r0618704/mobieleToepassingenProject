@@ -1,4 +1,5 @@
 package example.com.domain.db;
+
 public class DbException extends RuntimeException
 {
     public DbException()
