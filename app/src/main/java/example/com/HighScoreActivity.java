@@ -1,7 +1,10 @@
 package example.com;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -27,8 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import example.com.domain.Highscore;
-import example.com.domain.Player;
-
 
 public class HighScoreActivity extends AppCompatActivity {
 
@@ -59,8 +60,8 @@ public class HighScoreActivity extends AppCompatActivity {
         
         mQuit = findViewById(R.id.quit);
         mQueue = Volley.newRequestQueue(this);
-
-        jsonParse();
+        if(isNetworkAvailable()) jsonParse();
+        else highscoreview_text.setText("No internet connection");
         mQuit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,10 +100,7 @@ public class HighScoreActivity extends AppCompatActivity {
                                     listL++ ;
                                 }
                             }
-                            else
-                            {
-                                highscoresTextList = "No scores for this category yet!";
-                            }
+                            else highscoresTextList = "No scores for this category yet!";
                             highscoreview_text.setText(highscoresTextList);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -151,5 +149,10 @@ public class HighScoreActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 }

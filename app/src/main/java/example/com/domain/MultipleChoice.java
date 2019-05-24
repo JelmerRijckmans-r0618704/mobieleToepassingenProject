@@ -6,6 +6,15 @@ import java.util.Collections;
 public class MultipleChoice extends Question
 {
     private String choice1, choice2, choice3;
+
+    public MultipleChoice(String question, String choice1, String choice2, String choice3, String resource)
+    {
+        super(question, choice1, QuestionTypes.MULTIPLE_CHOICE, resource);
+        setChoice1(choice1);
+        setChoice2(choice2);
+        setChoice3(choice3);
+    }
+
     public MultipleChoice(String question, String choice1, String choice2, String choice3)
     {
         super(question, choice1, QuestionTypes.MULTIPLE_CHOICE);

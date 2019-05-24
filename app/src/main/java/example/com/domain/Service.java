@@ -19,6 +19,7 @@ public class Service {
         Category newCat2 = createCategory("Pokemon", "Medium");
         newCat2.addQuestion(createMultipleChoice( "What is the evolution of Charmamander?","Charizard", "Vulpix", "Wartortle"));
         newCat2.addQuestion(createMultipleChoice("What type of pokemon is Caterpie?","Bug", "Ice", "Flying"));
+        newCat2.addQuestion(createTextInput("Who's that Pokemon?", "Arceus", "https://cdn.bulbagarden.net/upload/thumb/f/fc/493Arceus.png/1200px-493Arceus.png"));
         categoryDatabase.add(newCat2);
         Category newCat3 = createCategory("Yugioh", "Hard");
         newCat3.addQuestion(createMultipleChoice("What is the real name of the forbidden one?","Exodia", "Abaki", "Acorno"));
@@ -69,9 +70,19 @@ public class Service {
         return new MultipleChoice(question, choice1, choice2, choice3);
     }
 
+    public MultipleChoice createMultipleChoice(String question, String choice1, String choice2, String choice3, String resource)
+    {
+        return new MultipleChoice(question, choice1, choice2, choice3, resource);
+    }
+
     public TextInput createTextInput(String question, String answer)
     {
         return new TextInput(question, answer);
+    }
+
+    public TextInput createTextInput(String question, String answer, String resource)
+    {
+        return new TextInput(question, answer, resource);
     }
 
 }

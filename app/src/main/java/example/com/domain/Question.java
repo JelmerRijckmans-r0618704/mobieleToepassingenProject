@@ -7,6 +7,10 @@ public abstract class Question
     private QuestionTypes type;
     private String resource;
 
+    public Question(String question, String answer, QuestionTypes type, String resource) {
+        this(question, answer, type);
+        setResource(resource);
+    }
 
     public Question(String question, String answer, QuestionTypes type) {
         setQuestion(question);

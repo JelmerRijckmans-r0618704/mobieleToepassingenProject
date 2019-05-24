@@ -1,18 +1,27 @@
 package example.com;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,10 +32,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import example.com.domain.Category;
 import example.com.domain.MultipleChoice;
@@ -45,6 +57,7 @@ public class MainActivity extends AppCompatActivity
     private TextView mScoreView;
     private TextView mQuestionView;
     private RequestQueue mQueue;
+    private ImageView mImage;
 
 
     private int mScore = 0;
@@ -72,54 +85,63 @@ public class MainActivity extends AppCompatActivity
     {
         if(currentQuestionIndex >= amountQuestion)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Please put in your username");
-
-            final EditText input = new EditText(this);
-            input.setInputType(InputType.TYPE_CLASS_TEXT);
-            input.setFilters(new InputFilter[] {new InputFilter.LengthFilter(15)});
-            builder.setView(input);
-
             final Intent intent  = new Intent(MainActivity.this, HighScoreActivity.class);
             intent.putExtra("category", currentCategory.getName());
             intent.putExtra("score", mScore);
             intent.putExtra("player", "anon");
 
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    playerName = input.getText().toString();
-                    if(!(playerName.trim().isEmpty()))
-                    {
-                        postRequest();
-                        Toast.makeText(MainActivity.this, "Score has been sent", Toast.LENGTH_SHORT).show();
+            if(isNetworkAvailable())
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Please put in your username");
+
+                final EditText input = new EditText(this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                input.setFilters(new InputFilter[] {new InputFilter.LengthFilter(15)});
+                builder.setView(input);
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        playerName = input.getText().toString();
+                        if(!(playerName.trim().isEmpty()))
+                        {
+                            postRequest();
+                            Toast.makeText(MainActivity.this, "Score has been sent", Toast.LENGTH_SHORT).show();
+                        }
+                        else Toast.makeText(MainActivity.this, "Score not sent", Toast.LENGTH_SHORT).show();
+
+                        intent.putExtra("player", playerName);
+                        startActivity(intent);
                     }
-                    else Toast.makeText(MainActivity.this, "Score not sent", Toast.LENGTH_SHORT).show();
 
-                    intent.putExtra("player", playerName);
-                    startActivity(intent);
-                }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        resetScore();
+                        Toast.makeText(MainActivity.this, "Score not sent", Toast.LENGTH_SHORT).show();
 
-            });
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                    resetScore();
-                    Toast.makeText(MainActivity.this, "Score not sent", Toast.LENGTH_SHORT).show();
+                        startActivity(intent);
+                    }
+                });
 
-                    startActivity(intent);
-                }
-            });
-
-            builder.show();
+                builder.show();
+            }
+            else
+            {
+                resetScore();
+                Toast.makeText(MainActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
+                startActivity(intent);
+            }
         }
         else
         {
             actualQuestion = currentCategory.getQuestionArrayList().get(currentQuestionIndex);
             String title = currentCategory.getName() + " : Question " + (currentQuestionIndex+1);
             getSupportActionBar().setTitle(title);
-
+            currentQuestionIndex++;
             questionAnswer = actualQuestion.getAnswer();
 
             switch(actualQuestion.getType())
@@ -134,7 +156,6 @@ public class MainActivity extends AppCompatActivity
 
             mQuestionView.setText(actualQuestion.getQuestion());
 
-            currentQuestionIndex++;
 
             //create quit button programmatically, there might be another better way
             LinearLayout layout = findViewById(R.id.questionChoices);
@@ -183,15 +204,14 @@ public class MainActivity extends AppCompatActivity
                     {
                         mScore += 1;
                         updateScore(mScore);
-                        updateQuestion();
 
                         Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
                     }
                     else
                     {
                         Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
-                        updateQuestion();
                     }
+                    updateQuestion();
                 }
             });
 
@@ -239,10 +259,12 @@ public class MainActivity extends AppCompatActivity
     {
         final LinearLayout layout = findViewById(R.id.questionChoices);
 
+        createImage(layout);
+
         final EditText inputUser = new EditText(this);
         inputUser.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         inputUser.setFilters(new InputFilter[] {new InputFilter.LengthFilter(15)});
-
+        inputUser.setSingleLine(true);
 
         Button btnTag = new Button(this);
         btnTag.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -263,15 +285,14 @@ public class MainActivity extends AppCompatActivity
                 {
                     mScore += 1;
                     updateScore(mScore);
-                    updateQuestion();
 
                     Toast.makeText(MainActivity.this, "Correct", Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
                     Toast.makeText(MainActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
-                    updateQuestion();
                 }
+                updateQuestion();
             }
         });
 
@@ -279,6 +300,7 @@ public class MainActivity extends AppCompatActivity
         layout.addView(new TextView(this));
         layout.addView(btnTag);
         layout.addView(new TextView(this));
+
     }
 
     @Override
@@ -305,10 +327,32 @@ public class MainActivity extends AppCompatActivity
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //Does nothing
             }
         });
         builder.show();
+    }
+
+
+    private void createImage(final ViewGroup view)
+    {
+        if(!(actualQuestion.getResource() == null))
+        {
+            final ImageView src = new ImageView(this);
+            Picasso.with(view.getContext())
+                    .load(actualQuestion.getResource())
+                    .into(src, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            view.addView(src);
+                        }
+
+                        @Override
+                        public void onError() {
+                            Toast.makeText(MainActivity.this, "Could not retrieve image", Toast.LENGTH_SHORT).show();
+                            updateQuestion();
+                        }
+                    });
+        }
     }
 
     private void resetScore() {
@@ -318,4 +362,13 @@ public class MainActivity extends AppCompatActivity
     private void updateScore (int point){
         mScoreView.setText("" + mScore);
     }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
 }
+
