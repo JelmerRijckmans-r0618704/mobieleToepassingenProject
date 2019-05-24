@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.util.TypedValue;
 import android.view.View;
@@ -38,7 +39,6 @@ public class MainActivity extends AppCompatActivity
     private int amountQuestion = 0;
     private int currentQuestionIndex = 0;
     private String questionAnswer;
-    private MultipleChoice actualMultipleChoice;
     private Question actualQuestion;
     private Category currentCategory;
 
@@ -70,28 +70,32 @@ public class MainActivity extends AppCompatActivity
 
     private void updateQuestion()
     {
-        if(currentQuestionIndex >= amountQuestion){
+        if(currentQuestionIndex >= amountQuestion)
+        {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Please put in your username");
 
-            // Set up the input
             final EditText input = new EditText(this);
-            // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
             input.setInputType(InputType.TYPE_CLASS_TEXT);
+            input.setFilters(new InputFilter[] {new InputFilter.LengthFilter(15)});
             builder.setView(input);
+
             final Intent intent  = new Intent(MainActivity.this, HighScoreActivity.class);
             intent.putExtra("category", currentCategory.getName());
             intent.putExtra("score", mScore);
             intent.putExtra("player", "anon");
-            // Set up the buttons
+
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     playerName = input.getText().toString();
-                    if(!(playerName.length() <= 0 || playerName.isEmpty()))
+                    if(!(playerName.trim().isEmpty()))
                     {
                         postRequest();
+                        Toast.makeText(MainActivity.this, "Score has been sent", Toast.LENGTH_SHORT).show();
                     }
+                    else Toast.makeText(MainActivity.this, "Score not sent", Toast.LENGTH_SHORT).show();
+
                     intent.putExtra("player", playerName);
                     startActivity(intent);
                 }
@@ -102,9 +106,12 @@ public class MainActivity extends AppCompatActivity
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.cancel();
                     resetScore();
+                    Toast.makeText(MainActivity.this, "Score not sent", Toast.LENGTH_SHORT).show();
+
                     startActivity(intent);
                 }
             });
+
             builder.show();
         }
         else
@@ -155,10 +162,8 @@ public class MainActivity extends AppCompatActivity
     {
         for (final String choice:  ((MultipleChoice) actualQuestion).getChoicesInList())
         {
-            //the layout on which you are working
             final LinearLayout layout = findViewById(R.id.questionChoices);
 
-            //set the properties for button
             Button btnTag = new Button(this);
             btnTag.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             btnTag.setText(choice);
@@ -168,7 +173,6 @@ public class MainActivity extends AppCompatActivity
             btnTag.setPadding(8,8,8,8);
             btnTag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 
-            //set the onclicklistener
             btnTag.setOnClickListener(new View.OnClickListener() {
                 @Override
 
@@ -191,7 +195,6 @@ public class MainActivity extends AppCompatActivity
                 }
             });
 
-            //add button to the layout
             layout.addView(btnTag);
             layout.addView(new TextView(this)); // no way to change margin so I use this lol
         }
@@ -234,11 +237,11 @@ public class MainActivity extends AppCompatActivity
 
     private void createTextInput()
     {
-        //the layout on which you are working
         final LinearLayout layout = findViewById(R.id.questionChoices);
 
         final EditText inputUser = new EditText(this);
         inputUser.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        inputUser.setFilters(new InputFilter[] {new InputFilter.LengthFilter(15)});
 
 
         Button btnTag = new Button(this);
@@ -250,7 +253,6 @@ public class MainActivity extends AppCompatActivity
         btnTag.setPadding(8,8,8,8);
         btnTag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 
-        //set the onclicklistener
         btnTag.setOnClickListener(new View.OnClickListener() {
             @Override
 
@@ -273,7 +275,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        //add button to the layout
         layout.addView(inputUser);
         layout.addView(new TextView(this));
         layout.addView(btnTag);
@@ -281,7 +282,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    //back button on app leads user to home
     public void onBackPressed() {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
@@ -289,19 +289,16 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    //Dialog asks user to quit
     private void askForUserToExitToMenu(){
         AlertDialog.Builder builder =   new AlertDialog.Builder(this);
         builder.setTitle("Are you sure you want to go back to the menu?");
 
-        //sets the yes and no button
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 resetScore();
                 Intent intent  = new Intent(MainActivity.this, CategoryActivity.class);
                 startActivity(intent);
-               //Exits the app
 
             }
         });

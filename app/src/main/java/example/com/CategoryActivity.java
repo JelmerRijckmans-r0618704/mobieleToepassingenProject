@@ -37,10 +37,8 @@ public class CategoryActivity extends AppCompatActivity {
     {
         for (final String categoryName: service.getAllCategoryNames())
         {
-            //the layout on which you are working
             LinearLayout layout = findViewById(R.id.categoryList);
 
-            //set the properties for button
             Button btnTag = new Button(this);
             btnTag.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
             btnTag.setText(categoryName);
@@ -50,17 +48,13 @@ public class CategoryActivity extends AppCompatActivity {
             btnTag.setPadding(8,8,8,8);
             btnTag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 
-            //set the onclicklistener
             btnTag.setOnClickListener(new View.OnClickListener() {
                 @Override
-
                 public void onClick(View view) {
-                    //My logic for button goes here
                     startIntent(categoryName);
                 }
             });
 
-            //add button to the layout
             layout.addView(btnTag);
             layout.addView(new TextView(this)); // no way to change margin so I use this lol
         }

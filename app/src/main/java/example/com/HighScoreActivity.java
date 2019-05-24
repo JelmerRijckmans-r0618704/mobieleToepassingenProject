@@ -46,8 +46,8 @@ public class HighScoreActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setTitle("Highscores");
         setContentView(R.layout.activity_highscore);
-        highscoreview_text = (TextView) findViewById(R.id.highscoreview_text);
-        currentScore = (TextView) findViewById(R.id.currentScore);
+        highscoreview_text = findViewById(R.id.highscoreview_text);
+        currentScore = findViewById(R.id.currentScore);
         highscoreview_text.setMovementMethod(new ScrollingMovementMethod());
 
         score = getIntent().getExtras().getInt("score");
@@ -57,15 +57,13 @@ public class HighScoreActivity extends AppCompatActivity {
         if("anon".equals(nameCurrentPlayer)) currentScore.setText("Congrats anon! \n Your score is: " + score);
         else currentScore.setText("Congrats " + nameCurrentPlayer + "! \nYour score is: " + score);
         
-        mQuit = (Button)findViewById(R.id.quit);
+        mQuit = findViewById(R.id.quit);
         mQueue = Volley.newRequestQueue(this);
 
         jsonParse();
-        //Start of Button Listener for quit
         mQuit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //My logic for button quit goes here
                 askForUserInputToQuit();
             }
         });
@@ -91,12 +89,19 @@ public class HighScoreActivity extends AppCompatActivity {
                                     highscores.add(new Highscore(jsonObject.getString("playername"), category, jsonObject.getInt("highscore")));
                                 }
                             }
-                            Collections.sort(highscores);
-                            int listL = 1;
-                            for (Highscore highscore: highscores)
+                            if(highscores.size() != 0)
                             {
-                                highscoresTextList += listL + ". " + highscore.toString() + "\n";
-                                listL++ ;
+                                Collections.sort(highscores);
+                                int listL = 1;
+                                for (Highscore highscore: highscores)
+                                {
+                                    highscoresTextList += listL + ". " + highscore.toString() + "\n";
+                                    listL++ ;
+                                }
+                            }
+                            else
+                            {
+                                highscoresTextList = "No scores for this category yet!";
                             }
                             highscoreview_text.setText(highscoresTextList);
                         } catch (JSONException e) {
@@ -122,11 +127,9 @@ public class HighScoreActivity extends AppCompatActivity {
         AlertDialog.Builder builder =   new AlertDialog.Builder(this);
         builder.setTitle("Are you sure you want to return to the menu?");
 
-        //sets the yes and no button
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //Return to menu
                 Intent intent  = new Intent(HighScoreActivity.this, CategoryActivity.class);
                 startActivity(intent);
             }
@@ -134,14 +137,13 @@ public class HighScoreActivity extends AppCompatActivity {
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //Does nothing
+
             }
         });
         builder.show();
     }
 
     @Override
-    //Back button on app leads user to home
     public void onBackPressed() {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);

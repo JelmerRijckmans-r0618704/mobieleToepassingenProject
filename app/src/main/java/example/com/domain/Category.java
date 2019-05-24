@@ -22,8 +22,7 @@ public class Category
     public String getDifficulty() {
         return difficulty;
     }
-
-
+    
     public List<Question> getQuestionArrayList() {
         return questionArrayList;
     }
